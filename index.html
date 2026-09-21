@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,6 +67,16 @@ details.emp summary{list-style:none;cursor:pointer;padding:14px 16px;display:fle
 .erow,.qrow{display:flex;gap:8px;align-items:center;margin-bottom:6px}.erow input,.qrow input{flex:1}
 details.qbox{margin-top:16px;border:1px solid var(--border);border-radius:12px;padding:0 14px 14px}details.qbox summary{cursor:pointer;padding:12px 0;font-weight:600;font-size:14px}
 footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+
+.period-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:16px}
+.period-toolbar .field{display:flex;flex-direction:column;gap:5px;min-width:150px}
+.period-toolbar label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.45px}
+select,input[type=date],input[type=search]{font:inherit;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);outline:none;min-width:0}
+select:focus,input[type=date]:focus,input[type=search]:focus{border-color:var(--primary)}
+.filter-card{margin-bottom:18px}.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.filter-grid .field{display:flex;flex-direction:column;gap:5px}.filter-grid label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.45px}
+.period-badge{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700}
+.search-result-count{font-size:12px;color:var(--muted);margin-left:auto}
+@media(max-width:640px){.period-toolbar .field{flex:1;min-width:130px}.search-result-count{width:100%;margin-left:0}}
 </style>
 </head>
 <body>
@@ -102,6 +111,18 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
 </div>
 
 <div id="dashContent" style="display:none">
+<div class="card filter-card">
+<h2>Performance Filters</h2>
+<div class="filter-grid">
+<div class="field"><label>Review cycle</label><select id="dashPeriod"></select></div>
+<div class="field"><label>Period date</label><input type="date" id="dashDate"></div>
+<div class="field"><label>Department</label><select id="dashDeptFilter"></select></div>
+<div class="field"><label>Search employee</label><input type="search" id="dashEmpSearch" placeholder="Name contains…"></div>
+<div class="field"><label>Performance</label><select id="dashScoreFilter"><option value="all">All scores</option><option value="excellent">Excellent (8.5–10)</option><option value="good">Good (7–8.49)</option><option value="average">Average (5–6.99)</option><option value="needs">Needs improvement (0–4.99)</option><option value="pending">Not reviewed</option></select></div>
+<div class="field"><label>Review status</label><select id="dashReviewFilter"><option value="all">All status</option><option value="complete">Fully reviewed</option><option value="progress">In progress</option><option value="notstarted">Not started</option></select></div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px"><span class="period-badge" id="dashPeriodLabel">Current period</span><span class="search-result-count" id="dashFilterCount"></span><button class="btn-ghost sm" id="btnClearDashFilters">Clear filters</button></div>
+</div>
 <div class="note" id="dashNote" style="display:none">No reviews yet. Open the <b>Review</b> tab, pick a department and answer the questions for each employee.</div>
 <div class="grid top">
 <div class="card score-card"><h2 style="margin-bottom:6px">Overall Business Score</h2>
@@ -129,7 +150,19 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
 </div>
 </section>
 
-<section class="pane" id="pane-review"><div id="revHead"></div><div id="revList"></div></section>
+<section class="pane" id="pane-review">
+<div class="card filter-card">
+<h2>Review Period & Search</h2>
+<div class="filter-grid">
+<div class="field"><label>Review cycle</label><select id="reviewPeriod"></select></div>
+<div class="field"><label>Period date</label><input type="date" id="reviewDate"></div>
+<div class="field"><label>Search employee</label><input type="search" id="reviewEmpSearch" placeholder="Name contains…"></div>
+<div class="field"><label>Performance</label><select id="reviewScoreFilter"><option value="all">All scores</option><option value="excellent">Excellent (8.5–10)</option><option value="good">Good (7–8.49)</option><option value="average">Average (5–6.99)</option><option value="needs">Needs improvement (0–4.99)</option><option value="pending">Not reviewed</option></select></div>
+<div class="field"><label>Review status</label><select id="reviewStatusFilter"><option value="all">All status</option><option value="complete">Fully reviewed</option><option value="progress">In progress</option><option value="notstarted">Not started</option></select></div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px"><span class="period-badge" id="reviewPeriodLabel">Current period</span><span class="search-result-count" id="reviewFilterCount"></span></div>
+</div>
+<div id="revHead"></div><div id="revList"></div></section>
 
 <section class="pane" id="pane-manage">
 <div class="card">
@@ -144,6 +177,14 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
 </div>
 <p class="hint">Departments named HR, Sales &amp; Marketing, Management, Admin, Finance or IT automatically get 10 ready-made review questions. Any other name gets a general set. All questions can be edited per department below.</p>
 </div>
+<div class="card filter-card">
+<h2>Question Sets by Review Cycle</h2>
+<div class="filter-grid">
+<div class="field"><label>Edit questions for</label><select id="managePeriod"></select></div>
+<div class="field"><label>Period date</label><input type="date" id="manageDate"></div>
+</div>
+<p class="hint">Each department now has its own question set for weekly, monthly, quarterly, half-yearly and yearly reviews. Existing questions are migrated into the monthly set so older data is preserved.</p>
+</div>
 <div id="manageList"></div>
 </section>
 
@@ -154,6 +195,22 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
 const KEY='businessScore.v2',OLD_KEY='businessScore.v1';
 const COLORS=['#4f46e5','#10b981','#f59e0b','#ef4444','#06b6d4','#8b5cf6','#ec4899','#84cc16','#f97316','#14b8a6','#3b82f6','#a855f7'];
 const ANS={yes:{label:'Yes',c:'#10b981'},partial:{label:'Partially',c:'#f59e0b'},no:{label:'No',c:'#ef4444'}};
+const PERIODS=[
+{id:'weekly',label:'Weekly'},
+{id:'monthly',label:'Monthly'},
+{id:'quarterly',label:'Quarterly'},
+{id:'halfyearly',label:'Half-yearly'},
+{id:'yearly',label:'Yearly'}
+];
+const PERIOD_LABELS=Object.fromEntries(PERIODS.map(x=>[x.id,x.label]));
+function isoWeekInfo(date){const d=new Date(date);d.setHours(0,0,0,0);const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);const start=new Date(d);const end=new Date(d);end.setDate(end.getDate()+6);const thu=new Date(start);thu.setDate(thu.getDate()+3);const year=thu.getFullYear();const firstThu=new Date(year,0,4);const firstMonday=new Date(firstThu);firstMonday.setDate(firstThu.getDate()-((firstThu.getDay()+6)%7));const week=Math.floor((start-firstMonday)/604800000)+1;return{start,end,year,week};}
+function periodInfo(type,date=new Date()){const d=new Date(date);d.setHours(0,0,0,0);if(type==='weekly'){const x=isoWeekInfo(d);return{key:`weekly:${x.year}-W${String(x.week).padStart(2,'0')}`,label:`Week ${x.week}, ${x.year}`,start:x.start,end:x.end};}if(type==='monthly'){const start=new Date(d.getFullYear(),d.getMonth(),1),end=new Date(d.getFullYear(),d.getMonth()+1,0);return{key:`monthly:${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,label:start.toLocaleDateString(undefined,{month:'long',year:'numeric'}),start,end};}if(type==='quarterly'){const q=Math.floor(d.getMonth()/3)+1,start=new Date(d.getFullYear(),(q-1)*3,1),end=new Date(d.getFullYear(),q*3,0);return{key:`quarterly:${d.getFullYear()}-Q${q}`,label:`Q${q} ${d.getFullYear()}`,start,end};}if(type==='halfyearly'){const h=d.getMonth()<6?1:2,start=new Date(d.getFullYear(),h===1?0:6,1),end=new Date(d.getFullYear(),h===1?6:12,0);return{key:`halfyearly:${d.getFullYear()}-H${h}`,label:`H${h} ${d.getFullYear()}`,start,end};}const start=new Date(d.getFullYear(),0,1),end=new Date(d.getFullYear(),12,0);return{key:`yearly:${d.getFullYear()}`,label:String(d.getFullYear()),start,end};}
+function dateInputValue(d=new Date()){return new Date(d).toISOString().slice(0,10);}
+function periodQuestions(d,period){return d.questionSets&&Array.isArray(d.questionSets[period])?d.questionSets[period]:d.questions||[];}
+function ensureReview(e,key){if(!e.reviews||typeof e.reviews!=='object')e.reviews={};if(!e.reviews[key]||typeof e.reviews[key]!=='object')e.reviews[key]={answers:{},updatedAt:null};if(!e.reviews[key].answers||typeof e.reviews[key].answers!=='object')e.reviews[key].answers={};return e.reviews[key];}
+function currentAnswers(e,key){return ensureReview(e,key).answers;}
+function scoreMatches(score,filter){if(filter==='all')return true;if(filter==='pending')return score===null;if(score===null)return false;if(filter==='excellent')return score>=8.5;if(filter==='good')return score>=7&&score<8.5;if(filter==='average')return score>=5&&score<7;if(filter==='needs')return score<5;return true;}
+function statusMatches(stat,filter){if(filter==='all')return true;if(filter==='complete')return stat.total>0&&stat.answered===stat.total;if(filter==='progress')return stat.answered>0&&stat.answered<stat.total;return filter==='notstarted'?stat.answered===0:false;}
 
 const TEMPLATES={
 hr:{label:'HR',q:[
@@ -251,19 +308,25 @@ const $=id=>document.getElementById(id);
 const uid=()=>Math.random().toString(36).slice(2,11)+Date.now().toString(36).slice(-4);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mkQs=list=>list.map(t=>({id:uid(),text:t}));
-const mkDept=name=>({id:uid(),name,questions:mkQs(TEMPLATES[tplKey(name)].q),employees:[]});
+const mkDept=name=>{const base=mkQs(TEMPLATES[tplKey(name)].q);return{id:uid(),name,questions:base.map(q=>({...q})),questionSets:Object.fromEntries(PERIODS.map(p=>[p.id,base.map(q=>({id:uid(),text:q.text}))])),employees:[]};};
 const color=i=>COLORS[i%COLORS.length];
 const fmt=v=>v===null?'–':Number(v).toFixed(1);
 
 function normalize(s){
-return{departments:(Array.isArray(s.departments)?s.departments:[]).map(d=>({
-id:d.id||uid(),
-name:String(d.name||'Department'),
-questions:(Array.isArray(d.questions)&&d.questions.length)?d.questions.map(q=>({id:q.id||uid(),text:String(q.text||'')})):mkQs(TEMPLATES[tplKey(d.name||'')].q),
-employees:(Array.isArray(d.employees)?d.employees:[]).map(e=>({
-id:e.id||uid(),name:String(e.name||'Employee'),answers:e.answers&&typeof e.answers==='object'?e.answers:{}
-}))
-}))};
+return{departments:(Array.isArray(s.departments)?s.departments:[]).map(d=>{
+const base=(Array.isArray(d.questions)&&d.questions.length)?d.questions.map(q=>({id:q.id||uid(),text:String(q.text||'')})):mkQs(TEMPLATES[tplKey(d.name||'')].q);
+const qs={};
+PERIODS.forEach(p=>{
+if(d.questionSets&&Array.isArray(d.questionSets[p.id])&&d.questionSets[p.id].length){qs[p.id]=d.questionSets[p.id].map(q=>({id:q.id||uid(),text:String(q.text||'')}));}
+else if(p.id==='monthly'){qs[p.id]=base.map(q=>({id:q.id||uid(),text:String(q.text||'')}));}
+else{qs[p.id]=base.map(q=>({id:uid(),text:String(q.text||'')}));}
+});
+return{id:d.id||uid(),name:String(d.name||'Department'),questions:base,questionSets:qs,employees:(Array.isArray(d.employees)?d.employees:[]).map(e=>{
+const reviews=e.reviews&&typeof e.reviews==='object'?e.reviews:{};
+if(e.answers&&typeof e.answers==='object'&&Object.keys(e.answers).length&&!Object.keys(reviews).length){reviews[periodInfo('monthly').key]={answers:e.answers,updatedAt:null};}
+return{id:e.id||uid(),name:String(e.name||'Employee'),reviews};
+})};
+})};
 }
 
 function load(){
@@ -280,30 +343,22 @@ catch(e){console.error('Unable to save data:',e);alert('Your browser could not s
 }
 
 let state=load();
-const ui={tab:'dash',reviewDept:null,openEmp:new Set(),openQ:new Set()};
+const ui={tab:'dash',reviewDept:null,openEmp:new Set(),openQ:new Set(),period:'monthly',anchorDate:new Date(),managePeriod:'monthly',dash:{dept:'all',search:'',score:'all',status:'all'},review:{search:'',score:'all',status:'all'}};
 const charts={};
 const findD=id=>state.departments.find(d=>d.id===id);
 
-function empStats(d,e){
-let yes=0,partial=0,no=0;
-d.questions.forEach(q=>{const a=e.answers[q.id];if(a==='yes')yes++;else if(a==='partial')partial++;else if(a==='no')no++});
-const answered=yes+partial+no,total=d.questions.length;
-return{yes,partial,no,answered,total,score:answered?((yes+partial*.5)/answered)*10:null};
+function empStats(d,e,period=ui.period){
+const info=periodInfo(period,ui.anchorDate);const qs=periodQuestions(d,period),answers=currentAnswers(e,info.key);let yes=0,partial=0,no=0;
+qs.forEach(q=>{const a=answers[q.id];if(a==='yes')yes++;else if(a==='partial')partial++;else if(a==='no')no++;});
+const answered=yes+partial+no,total=qs.length;return{yes,partial,no,answered,total,score:answered?((yes+partial*.5)/answered)*10:null,periodKey:info.key};
 }
-function deptStats(d){
-const es=d.employees.map(e=>empStats(d,e)),sc=es.filter(x=>x.score!==null).map(x=>x.score);
-return{
-avg:sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null,
-reviewed:sc.length,count:d.employees.length,
-yes:es.reduce((a,x)=>a+x.yes,0),partial:es.reduce((a,x)=>a+x.partial,0),no:es.reduce((a,x)=>a+x.no,0),
-complete:es.filter(x=>x.total&&x.answered===x.total).length,
-started:es.filter(x=>x.answered>0).length,es
-};
+function deptStats(d,period=ui.period,employeePredicate=()=>true){
+const es=d.employees.filter(employeePredicate).map(e=>empStats(d,e,period)),sc=es.filter(x=>x.score!==null).map(x=>x.score);
+return{avg:sc.length?sc.reduce((a,b)=>a+b,0)/sc.length:null,reviewed:sc.length,count:es.length,yes:es.reduce((a,x)=>a+x.yes,0),partial:es.reduce((a,x)=>a+x.partial,0),no:es.reduce((a,x)=>a+x.no,0),complete:es.filter(x=>x.total&&x.answered===x.total).length,started:es.filter(x=>x.answered>0).length,es};
 }
-function overall(){
-const a=state.departments.map(d=>deptStats(d).avg).filter(v=>v!==null);
-return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
-}
+function overall(period=ui.period){const a=state.departments.map(d=>deptStats(d,period).avg).filter(v=>v!==null);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;}
+function matchesFilters(d,e,period,filters){const s=empStats(d,e,period);const name=e.name.toLowerCase();if(filters.search&&!name.includes(filters.search.toLowerCase()))return false;if(!scoreMatches(s.score,filters.score))return false;if(!statusMatches(s,filters.status))return false;return true;}
+
 function grade(v){
 if(v===null)return{t:'No data',c:'#9ca3af'};
 if(v>=8.5)return{t:'Excellent',c:'#10b981'};
@@ -312,6 +367,16 @@ if(v>=5)return{t:'Average',c:'#f59e0b'};
 return{t:'Needs improvement',c:'#ef4444'};
 }
 
+function periodOptions(selected){return PERIODS.map(p=>`<option value="${p.id}" ${p.id===selected?'selected':''}>${p.label}</option>`).join('');}
+function syncPeriodControls(){
+['dashPeriod','reviewPeriod','managePeriod'].forEach(id=>{const el=$(id);if(el)el.innerHTML=periodOptions(id==='managePeriod'?ui.managePeriod:ui.period);});
+['dashDate','reviewDate','manageDate'].forEach(id=>{const el=$(id);if(el)el.value=dateInputValue(ui.anchorDate);});
+const info=periodInfo(ui.period,ui.anchorDate);if($('dashPeriodLabel'))$('dashPeriodLabel').textContent=`${PERIOD_LABELS[ui.period]} · ${info.label}`;if($('reviewPeriodLabel'))$('reviewPeriodLabel').textContent=`${PERIOD_LABELS[ui.period]} · ${info.label}`;
+}
+function setPeriod(type,date){ui.period=type;ui.anchorDate=new Date(date||ui.anchorDate);syncPeriodControls();renderActive();}
+function bindPeriodControls(){
+const pids=[['dashPeriod','dashDate'],['reviewPeriod','reviewDate'],['managePeriod','manageDate']];pids.forEach(([pid,did])=>{const p=$(pid),dt=$(did);if(p)p.onchange=()=>{if(pid==='managePeriod')ui.managePeriod=p.value;else ui.period=p.value;syncPeriodControls();renderActive();};if(dt)dt.onchange=()=>{ui.anchorDate=new Date(dt.value+'T12:00:00');syncPeriodControls();renderActive();};});
+}
 function setTab(t){
 ui.tab=t;
 document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
@@ -335,9 +400,17 @@ $('dashEmpty').style.display=has?'none':'block';
 $('dashContent').style.display=has?'block':'none';
 if(!has)return;
 
-const st=state.departments.map((d,i)=>({d,i,s:deptStats(d)}));
-const ov=overall(),g=grade(ov);
+syncPeriodControls();
+const df=ui.dash;
+const eligibleDepts=state.departments.filter(d=>df.dept==='all'||d.id===df.dept);
+const st=eligibleDepts.map((d,i)=>({d,i,s:deptStats(d,ui.period,e=>matchesFilters(d,e,ui.period,{search:df.search,score:df.score,status:df.status}))}));
+const ov=st.map(x=>x.s.avg).filter(v=>v!==null).length?st.map(x=>x.s.avg).filter(v=>v!==null).reduce((a,b)=>a+b,0)/st.map(x=>x.s.avg).filter(v=>v!==null).length:null,g=grade(ov);
 const empTotal=st.reduce((a,x)=>a+x.s.count,0),revTotal=st.reduce((a,x)=>a+x.s.reviewed,0);
+const allVisible=eligibleDepts.reduce((a,d)=>a+d.employees.filter(e=>matchesFilters(d,e,ui.period,{search:df.search,score:df.score,status:df.status})).length,0);
+$('dashFilterCount').textContent=`${allVisible} employee${allVisible===1?'':'s'} shown`;
+$('dashPeriod').value=ui.period;$('dashDate').value=dateInputValue(ui.anchorDate);$('dashEmpSearch').value=df.search;$('dashScoreFilter').value=df.score;$('dashReviewFilter').value=df.status;
+const deptSel=$('dashDeptFilter');deptSel.innerHTML='<option value="all">All departments</option>'+state.departments.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('');deptSel.value=df.dept;
+$('dashPeriodLabel').textContent=`${PERIOD_LABELS[ui.period]} · ${periodInfo(ui.period,ui.anchorDate).label}`;
 $('dashNote').style.display=ov===null?'block':'none';
 $('overallVal').textContent=fmt(ov);$('overallVal').style.color=g.c;
 $('overallBadge').textContent=g.t;$('overallBadge').style.background=g.c;
@@ -396,60 +469,41 @@ function renderReview(){
 const head=$('revHead'),list=$('revList');
 if(!state.departments.length){head.innerHTML='';list.innerHTML='<div class="card empty">No departments yet. Go to <b>Manage</b> to add departments and employees.</div>';return}
 if(!findD(ui.reviewDept))ui.reviewDept=state.departments[0].id;
-renderRevHead();
-const d=findD(ui.reviewDept);
-list.innerHTML=d.employees.length?d.employees.map(e=>empCard(d,e)).join(''):'<div class="card empty">No employees in this department yet. Add them in the <b>Manage</b> tab.</div>';
+syncPeriodControls();renderRevHead();
+const d=findD(ui.reviewDept),rf=ui.review;const visible=d.employees.filter(e=>matchesFilters(d,e,ui.period,rf));
+$('reviewEmpSearch').value=rf.search;$('reviewScoreFilter').value=rf.score;$('reviewStatusFilter').value=rf.status;$('reviewFilterCount').textContent=`${visible.length} of ${d.employees.length} employees shown`;
+list.innerHTML=visible.length?visible.map(e=>empCard(d,e)).join(''):'<div class="card empty">No employees match the current filters.</div>';
 }
-
 function renderRevHead(){
-const d=findD(ui.reviewDept),s=deptStats(d),g=grade(s.avg);
-const pills=state.departments.map((x,i)=>{const sx=deptStats(x);return `<button class="pill ${x.id===d.id?'sel':''}" style="--c:${color(i)}" data-dept="${x.id}"><span class="dot"></span>${esc(x.name)}<b>${fmt(sx.avg)}</b></button>`}).join('');
+const d=findD(ui.reviewDept),s=deptStats(d,ui.period,e=>matchesFilters(d,e,ui.period,ui.review)),g=grade(s.avg);
+const pills=state.departments.map((x,i)=>{const sx=deptStats(x,ui.period,e=>matchesFilters(x,e,ui.period,ui.review));return `<button class="pill ${x.id===d.id?'sel':''}" style="--c:${color(i)}" data-dept="${x.id}"><span class="dot"></span>${esc(x.name)}<b>${fmt(sx.avg)}</b></button>`}).join('');
 const prog=s.count?Math.round(s.complete/s.count*100):0;
 $('revHead').innerHTML=`<div class="pills">${pills}</div>
-<div class="card revsum" style="margin-bottom:16px">
-<div><small style="color:var(--muted)">Department score</small><div class="big" style="color:${g.c}">${fmt(s.avg)} <span style="font-size:14px;font-weight:600;color:var(--muted)">/ 10 · ${g.t}</span></div></div>
-<div><small style="color:var(--muted)">Fully reviewed: ${s.complete} of ${s.count} employees</small><div class="bar" style="margin-top:6px"><i style="width:${prog}%;background:${g.c==='#9ca3af'?'#4f46e5':g.c}"></i></div></div>
-<div class="legend"><span style="--c:${ANS.yes.c}">Yes = 1</span><span style="--c:${ANS.partial.c}">Partially = 0.5</span><span style="--c:${ANS.no.c}">No = 0</span></div>
-</div>`;
+<div class="card revsum" style="margin-bottom:16px"><div><small style="color:var(--muted)">${PERIOD_LABELS[ui.period]} department score</small><div class="big" style="color:${g.c}">${fmt(s.avg)} <span style="font-size:14px;font-weight:600;color:var(--muted)">/ 10 · ${g.t}</span></div></div><div><small style="color:var(--muted)">Fully reviewed: ${s.complete} of ${s.count} employees</small><div class="bar" style="margin-top:6px"><i style="width:${prog}%;background:${g.c==='#9ca3af'?'#4f46e5':g.c}"></i></div></div><div class="legend"><span style="--c:${ANS.yes.c}">Yes = 1</span><span style="--c:${ANS.partial.c}">Partially = 0.5</span><span style="--c:${ANS.no.c}">No = 0</span></div></div>`;
 }
-
 function empCard(d,e){
-const s=empStats(d,e),g=grade(s.score),open=ui.openEmp.has(e.id);
-const rows=d.questions.map((q,i)=>{const a=e.answers[q.id]||'';return `<div class="q"><div class="qn">${i+1}</div><div class="qt">${esc(q.text)}</div>
-<div class="seg">${Object.entries(ANS).map(([k,v])=>`<button class="${a===k?'on':''}" style="--c:${v.c}" data-ans="${k}" data-d="${d.id}" data-e="${e.id}" data-q="${q.id}">${v.label}</button>`).join('')}</div></div>`}).join('');
-return `<details class="emp" data-empcard="${e.id}" ${open?'open':''}><summary><span class="chev">▶</span><span class="ename">${esc(e.name)}</span><span class="chip">${s.answered}/${s.total} answered</span><span class="scorechip" style="background:${g.c}">${s.score===null?'Pending':s.score.toFixed(1)+' / 10'}</span></summary>
-<div class="ebody"><div class="qtools"><button class="btn-ghost sm" data-bulk="yes" data-d="${d.id}" data-e="${e.id}">Mark all Yes</button><button class="btn-ghost sm" data-bulk="clear" data-d="${d.id}" data-e="${e.id}">Clear answers</button></div>
-${rows||'<div class="empty sm">This department has no questions. Add some in Manage.</div>'}</div></details>`;
+const s=empStats(d,e,ui.period),g=grade(s.score),open=ui.openEmp.has(e.id),qs=periodQuestions(d,ui.period),answers=currentAnswers(e,s.periodKey);
+const rows=qs.map((q,i)=>{const a=answers[q.id]||'';return `<div class="q"><div class="qn">${i+1}</div><div class="qt">${esc(q.text)}</div><div class="seg">${Object.entries(ANS).map(([k,v])=>`<button class="${a===k?'on':''}" style="--c:${v.c}" data-ans="${k}" data-d="${d.id}" data-e="${e.id}" data-q="${q.id}">${v.label}</button>`).join('')}</div></div>`}).join('');
+return `<details class="emp" data-empcard="${e.id}" ${open?'open':''}><summary><span class="chev">▶</span><span class="ename">${esc(e.name)}</span><span class="chip">${s.answered}/${s.total} answered</span><span class="scorechip" style="background:${g.c}">${s.score===null?'Pending':s.score.toFixed(1)+' / 10'}</span></summary><div class="ebody"><div class="qtools"><button class="btn-ghost sm" data-bulk="yes" data-d="${d.id}" data-e="${e.id}">Mark all Yes</button><button class="btn-ghost sm" data-bulk="clear" data-d="${d.id}" data-e="${e.id}">Clear answers</button></div>${rows||'<div class="empty sm">This review cycle has no questions. Add some in Manage.</div>'}</div></details>`;
 }
-function refreshEmp(d,e){
-const el=document.querySelector(`[data-empcard="${e.id}"]`);if(!el)return;
-const t=document.createElement('template');t.innerHTML=empCard(d,e).trim();el.replaceWith(t.content.firstChild);renderRevHead();
-}
+function refreshEmp(d,e){const el=document.querySelector(`[data-empcard="${e.id}"]`);if(!el)return;const t=document.createElement('template');t.innerHTML=empCard(d,e).trim();el.replaceWith(t.content.firstChild);renderRevHead();}
 $('revHead').addEventListener('click',e=>{const p=e.target.closest('[data-dept]');if(!p)return;ui.reviewDept=p.dataset.dept;renderReview()});
-$('revList').addEventListener('click',ev=>{
-const b=ev.target.closest('button');if(!b)return;
-const d=findD(b.dataset.d);if(!d)return;
-const e=d.employees.find(x=>x.id===b.dataset.e);if(!e)return;
-if(b.dataset.ans){const q=b.dataset.q;if(e.answers[q]===b.dataset.ans)delete e.answers[q];else e.answers[q]=b.dataset.ans}
-else if(b.dataset.bulk==='yes')d.questions.forEach(q=>e.answers[q.id]='yes');
-else if(b.dataset.bulk==='clear')e.answers={};else return;
-save();refreshEmp(d,e);
-});
+$('revList').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const d=findD(b.dataset.d);if(!d)return;const e=d.employees.find(x=>x.id===b.dataset.e);if(!e)return;const info=periodInfo(ui.period,ui.anchorDate),r=ensureReview(e,info.key);if(b.dataset.ans){const q=b.dataset.q;if(r.answers[q]===b.dataset.ans)delete r.answers[q];else r.answers[q]=b.dataset.ans;r.updatedAt=new Date().toISOString();}else if(b.dataset.bulk==='yes')periodQuestions(d,ui.period).forEach(q=>r.answers[q.id]='yes');else if(b.dataset.bulk==='clear')r.answers={};else return;save();refreshEmp(d,e);});
 $('revList').addEventListener('toggle',ev=>{const t=ev.target;if(!t.dataset||!t.dataset.empcard)return;if(t.open)ui.openEmp.add(t.dataset.empcard);else ui.openEmp.delete(t.dataset.empcard)},true);
 
 function renderManage(){
 const box=$('manageList');
 if(!state.departments.length){box.innerHTML='<div class="card empty" style="margin-top:16px">No departments yet. Add one above, or use “Add 6 default departments”.</div>';return}
 box.innerHTML=state.departments.map((d,i)=>{
-const s=deptStats(d);
+const s=deptStats(d,ui.managePeriod);
 const emps=d.employees.map(e=>`<div class="erow"><input type="text" value="${esc(e.name)}" data-act="renameEmp" data-d="${d.id}" data-e="${e.id}"><button class="btn-danger" title="Remove employee" data-act="delEmp" data-d="${d.id}" data-e="${e.id}">✕</button></div>`).join('')||'<div class="empty sm">No employees yet.</div>';
-const qs=d.questions.map((q,k)=>`<div class="qrow"><span class="qn">${k+1}</span><input type="text" value="${esc(q.text)}" data-act="editQ" data-d="${d.id}" data-q="${q.id}"><button class="btn-danger" title="Remove question" data-act="delQ" data-d="${d.id}" data-q="${q.id}">✕</button></div>`).join('');
+const qs=periodQuestions(d,ui.managePeriod).map((q,k)=>`<div class="qrow"><span class="qn">${k+1}</span><input type="text" value="${esc(q.text)}" data-act="editQ" data-d="${d.id}" data-q="${q.id}"><button class="btn-danger" title="Remove question" data-act="delQ" data-d="${d.id}" data-q="${q.id}">✕</button></div>`).join('');
 return `<div class="card dept" style="border-left:5px solid ${color(i)}">
 <div class="dept-head"><input type="text" value="${esc(d.name)}" data-act="renameDept" data-d="${d.id}">
-<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="hint" style="margin:0">${s.count} employee${s.count===1?'':'s'} · ${d.questions.length} questions</span><button class="btn-ghost" data-act="delDept" data-d="${d.id}">Delete department</button></div></div>
+<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="hint" style="margin:0">${s.count} employee${s.count===1?'':'s'} · ${periodQuestions(d,ui.managePeriod).length} ${PERIOD_LABELS[ui.managePeriod].toLowerCase()} questions</span><button class="btn-ghost" data-act="delDept" data-d="${d.id}">Delete department</button></div></div>
 <h4>Employees</h4>${emps}
 <div class="add-row"><input type="text" placeholder="Employee name" data-newemp="${d.id}"><button class="btn" data-act="addEmp" data-d="${d.id}">+ Add Employee</button></div>
-<details class="qbox" data-qbox="${d.id}" ${ui.openQ.has(d.id)?'open':''}><summary>Review questions (${d.questions.length}) · Yes / Partially / No</summary>${qs}
+<details class="qbox" data-qbox="${d.id}" ${ui.openQ.has(d.id)?'open':''}><summary>${PERIOD_LABELS[ui.managePeriod]} review questions (${periodQuestions(d,ui.managePeriod).length}) · Yes / Partially / No</summary>${qs}
 <div class="add-row"><input type="text" placeholder="Add a new question" data-newq="${d.id}"><button class="btn" data-act="addQ" data-d="${d.id}">+ Add Question</button><button class="btn-ghost" data-act="resetQ" data-d="${d.id}">Reset to defaults</button></div></details>
 </div>`;
 }).join('');
@@ -472,17 +526,17 @@ $('btnDefaults').onclick=addDefaults;$('btnDefaultsDash').onclick=addDefaults;
 manageEl.addEventListener('click',ev=>{
 const t=ev.target.closest('[data-act]');if(!t)return;const d=findD(t.dataset.d);if(!d)return;const act=t.dataset.act;
 if(act==='delDept'){if(confirm(`Delete "${d.name}" and all its employees and reviews?`)){state.departments=state.departments.filter(x=>x!==d);if(ui.reviewDept===d.id)ui.reviewDept=null;save();renderManage()}}
-else if(act==='addEmp'){const inp=manageEl.querySelector(`[data-newemp="${d.id}"]`),name=inp.value.trim();if(!name)return inp.focus();if(d.employees.some(e=>e.name.trim().toLowerCase()===name.toLowerCase())){alert('That employee already exists in this department.');return}d.employees.push({id:uid(),name,answers:{}});save();renderManage();manageEl.querySelector(`[data-newemp="${d.id}"]`)?.focus()}
+else if(act==='addEmp'){const inp=manageEl.querySelector(`[data-newemp="${d.id}"]`),name=inp.value.trim();if(!name)return inp.focus();if(d.employees.some(e=>e.name.trim().toLowerCase()===name.toLowerCase())){alert('That employee already exists in this department.');return}d.employees.push({id:uid(),name,reviews:{}});save();renderManage();manageEl.querySelector(`[data-newemp="${d.id}"]`)?.focus()}
 else if(act==='delEmp'){d.employees=d.employees.filter(x=>x.id!==t.dataset.e);ui.openEmp.delete(t.dataset.e);save();renderManage()}
-else if(act==='addQ'){const inp=manageEl.querySelector(`[data-newq="${d.id}"]`),text=inp.value.trim();if(!text)return inp.focus();d.questions.push({id:uid(),text});ui.openQ.add(d.id);save();renderManage();manageEl.querySelector(`[data-newq="${d.id}"]`)?.focus()}
-else if(act==='delQ'){d.questions=d.questions.filter(x=>x.id!==t.dataset.q);Object.values(d.employees).forEach(()=>{});ui.openQ.add(d.id);save();renderManage()}
-else if(act==='resetQ'){if(confirm(`Reset "${d.name}" questions to the defaults?\nThis also clears existing review answers for this department.`)){d.questions=mkQs(TEMPLATES[tplKey(d.name)].q);d.employees.forEach(e=>e.answers={});ui.openQ.add(d.id);save();renderManage()}}
+else if(act==='addQ'){const inp=manageEl.querySelector(`[data-newq="${d.id}"]`),text=inp.value.trim();if(!text)return inp.focus();const qs=periodQuestions(d,ui.managePeriod);qs.push({id:uid(),text});d.questionSets[ui.managePeriod]=qs;ui.openQ.add(d.id);save();renderManage();manageEl.querySelector(`[data-newq="${d.id}"]`)?.focus()}
+else if(act==='delQ'){d.questionSets[ui.managePeriod]=periodQuestions(d,ui.managePeriod).filter(x=>x.id!==t.dataset.q);ui.openQ.add(d.id);save();renderManage()}
+else if(act==='resetQ'){if(confirm(`Reset "${d.name}" questions to the defaults for the selected review cycle?\nExisting answers are kept for other review cycles.`)){d.questionSets[ui.managePeriod]=mkQs(TEMPLATES[tplKey(d.name)].q);ui.openQ.add(d.id);save();renderManage()}}
 });
 manageEl.addEventListener('change',ev=>{
 const t=ev.target,d=findD(t.dataset.d);if(!d||!t.dataset.act)return;const v=t.value.trim();
 if(t.dataset.act==='renameDept'){if(v)d.name=v;else t.value=d.name}
 else if(t.dataset.act==='renameEmp'){const e=d.employees.find(x=>x.id===t.dataset.e);if(e){if(v)e.name=v;else t.value=e.name}}
-else if(t.dataset.act==='editQ'){const q=d.questions.find(x=>x.id===t.dataset.q);if(q){if(v)q.text=v;else t.value=q.text}}
+else if(t.dataset.act==='editQ'){const q=periodQuestions(d,ui.managePeriod).find(x=>x.id===t.dataset.q);if(q){if(v)q.text=v;else t.value=q.text}}
 save();
 });
 manageEl.addEventListener('keydown',ev=>{
@@ -495,16 +549,8 @@ manageEl.addEventListener('toggle',ev=>{const t=ev.target;if(!t.dataset||!t.data
 function sampleData(){
 const people={hr:['Anita','Ravi','Meena'],sales:['Sagar','Kiran','Priya','Arjun'],mgmt:['Suresh','Divya'],admin:['Lakshmi','Manoj'],finance:['Harish','Sneha','Vikram'],it:['Chandra','Asha','Naveen']};
 const bias={hr:.75,sales:.8,mgmt:.85,admin:.6,finance:.75,it:.9};
-const s={departments:DEFAULT_KEYS.map(k=>{
-const d=mkDept(TEMPLATES[k].label);
-d.employees=people[k].map(n=>{
-const b=Math.max(.3,Math.min(.97,bias[k]+Math.random()*.2-.1)),a={};
-d.questions.forEach(q=>{const r=Math.random();a[q.id]=r<b?'yes':r<b+(1-b)*.6?'partial':'no'});
-return{id:uid(),name:n,answers:a};
-});
-return d;
-})};
-if(s.departments[5]?.employees[2])s.departments[5].employees[2].answers={};
+const s={departments:DEFAULT_KEYS.map(k=>{const d=mkDept(TEMPLATES[k].label);d.employees=people[k].map(n=>{const b=Math.max(.3,Math.min(.97,bias[k]+Math.random()*.2-.1)),reviews={};PERIODS.forEach(p=>{const info=periodInfo(p.id,new Date()),a={};periodQuestions(d,p.id).forEach(q=>{const r=Math.random();a[q.id]=r<b?'yes':r<b+(1-b)*.6?'partial':'no'});reviews[info.key]={answers:a,updatedAt:new Date().toISOString()};});return{id:uid(),name:n,reviews};});return d;})};
+if(s.departments[5]?.employees[2])s.departments[5].employees[2].reviews={};
 return s;
 }
 function loadSample(){
@@ -566,6 +612,18 @@ reader.readAsText(file);
 e.target.value='';
 };
 
+function initFilters(){
+syncPeriodControls();bindPeriodControls();
+$('dashDeptFilter').onchange=()=>{ui.dash.dept=$('dashDeptFilter').value;renderDash()};
+$('dashEmpSearch').oninput=()=>{ui.dash.search=$('dashEmpSearch').value.trim();renderDash()};
+$('dashScoreFilter').onchange=()=>{ui.dash.score=$('dashScoreFilter').value;renderDash()};
+$('dashReviewFilter').onchange=()=>{ui.dash.status=$('dashReviewFilter').value;renderDash()};
+$('btnClearDashFilters').onclick=()=>{ui.dash={dept:'all',search:'',score:'all',status:'all'};renderDash()};
+$('reviewEmpSearch').oninput=()=>{ui.review.search=$('reviewEmpSearch').value.trim();renderReview()};
+$('reviewScoreFilter').onchange=()=>{ui.review.score=$('reviewScoreFilter').value;renderReview()};
+$('reviewStatusFilter').onchange=()=>{ui.review.status=$('reviewStatusFilter').value;renderReview()};
+}
+initFilters();
 renderActive();
 </script>
 </body>
