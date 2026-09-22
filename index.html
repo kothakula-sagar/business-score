@@ -77,6 +77,8 @@ select:focus,input[type=date]:focus,input[type=search]:focus{border-color:var(--
 .period-badge{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700}
 .search-result-count{font-size:12px;color:var(--muted);margin-left:auto}
 @media(max-width:640px){.period-toolbar .field{flex:1;min-width:130px}.search-result-count{width:100%;margin-left:0}}
+
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.docs-step{display:flex;gap:14px;align-items:flex-start}.docs-num{width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}.docs-card h3{margin:0 0 8px;font-size:15px}.docs-card p,.docs-card li{font-size:13px;line-height:1.65}.formula{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;overflow:auto}.score-example{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.score-example div{background:var(--bg);padding:12px;border-radius:10px;text-align:center}.score-example b{display:block;font-size:20px;margin-bottom:3px}.docs-table{width:100%;border-collapse:collapse;font-size:13px}.docs-table th,.docs-table td{padding:10px;border-bottom:1px solid var(--border);text-align:left}.docs-table th{color:var(--muted)}@media(max-width:600px){.score-example{grid-template-columns:1fr}.docs-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -96,6 +98,7 @@ select:focus,input[type=date]:focus,input[type=search]:focus{border-color:var(--
 <button class="tab active" data-tab="dash">📊 Dashboard</button>
 <button class="tab" data-tab="review">📝 Review</button>
 <button class="tab" data-tab="manage">⚙️ Manage</button>
+<button class="tab" data-tab="docs">📖 How It Works</button>
 </nav>
 
 <main>
@@ -186,6 +189,59 @@ select:focus,input[type=date]:focus,input[type=search]:focus{border-color:var(--
 <p class="hint">Each department now has its own question set for weekly, monthly, quarterly, half-yearly and yearly reviews. Existing questions are migrated into the monthly set so older data is preserved.</p>
 </div>
 <div id="manageList"></div>
+</section>
+
+<section class="pane" id="pane-docs">
+<div class="card docs-card">
+<h2>📖 Business Score: Beginner Guide</h2>
+<p>This page explains the system in simple language. You do not need to understand formulas or coding to use it. The app takes your review answers and turns them into percentages automatically.</p>
+</div>
+<div class="docs-grid" style="margin-top:18px">
+<div class="card docs-card"><div class="docs-step"><div class="docs-num">1</div><div><h3>Add departments</h3><p>Go to <b>Manage</b> and add departments such as HR, Sales &amp; Marketing, Finance, Admin, Management or IT.</p></div></div></div>
+<div class="card docs-card"><div class="docs-step"><div class="docs-num">2</div><div><h3>Add employees</h3><p>Inside each department, add the employees who should be reviewed. Each employee is scored separately.</p></div></div></div>
+<div class="card docs-card"><div class="docs-step"><div class="docs-num">3</div><div><h3>Choose a review cycle</h3><p>You can review people <b>Weekly, Monthly, Quarterly, Half-yearly or Yearly</b>. Each cycle has its own question set and score.</p></div></div></div>
+<div class="card docs-card"><div class="docs-step"><div class="docs-num">4</div><div><h3>Answer the questions</h3><p>For every question, choose <b>Yes</b>, <b>Partially</b> or <b>No</b>. The system calculates the percentage immediately.</p></div></div></div>
+</div>
+<div class="card docs-card" style="margin-top:18px">
+<h2>🧮 How the 100% score is calculated</h2>
+<p>Every answered question contributes to the employee's score. A <b>Yes</b> means the employee gets the full value of that question. <b>Partially</b> gets half. <b>No</b> gets zero.</p>
+<div class="score-example"><div><b>100%</b>Yes</div><div><b>50%</b>Partially</div><div><b>0%</b>No</div></div>
+<div class="formula" style="margin-top:14px">Employee Score = ((Yes × 1) + (Partially × 0.5)) ÷ Answered Questions × 100</div>
+<p><b>Example:</b> If there are 10 questions and the employee gets 7 Yes, 2 Partially and 1 No:</p>
+<div class="formula">((7 × 1) + (2 × 0.5)) ÷ 10 × 100 = 80%</div>
+<p>The result is therefore <b>80%</b>, not 8/10. The system is now designed around a 100% scale.</p>
+</div>
+<div class="card docs-card" style="margin-top:18px">
+<h2>🏢 How department and business scores work</h2>
+<table class="docs-table"><thead><tr><th>Level</th><th>What it means</th><th>How it is calculated</th></tr></thead><tbody>
+<tr><td>Employee</td><td>One person's review score</td><td>Average value of that person's answered questions</td></tr>
+<tr><td>Department</td><td>Performance of a department</td><td>Average of the reviewed employees in that department</td></tr>
+<tr><td>Business</td><td>Overall company score</td><td>Average of the departments that have review data</td></tr>
+</tbody></table>
+<p class="hint">Employees or departments with no answered review questions are not treated as 0%. They simply have <b>No data</b> until a review is started.</p>
+</div>
+<div class="card docs-card" style="margin-top:18px">
+<h2>📊 What the Dashboard means</h2>
+<ul>
+<li><b>Overall Business Score:</b> the current overall percentage.</li>
+<li><b>Department Ranking:</b> departments ordered by their calculated percentage for the selected review period.</li>
+<li><b>Employees reviewed:</b> how many employees have at least one answered question.</li>
+<li><b>Performance Filters:</b> search employees and view score ranges or review status.</li>
+</ul>
+</div>
+<div class="card docs-card" style="margin-top:18px">
+<h2>🎯 Score bands</h2>
+<table class="docs-table"><thead><tr><th>Percentage</th><th>Label</th></tr></thead><tbody><tr><td>85–100%</td><td>Excellent</td></tr><tr><td>70–84.99%</td><td>Good</td></tr><tr><td>50–69.99%</td><td>Average</td></tr><tr><td>0–49.99%</td><td>Needs improvement</td></tr></tbody></table>
+</div>
+<div class="card docs-card" style="margin-top:18px">
+<h2>📅 How different review cycles work</h2>
+<p>Choose the cycle and date at the top of Dashboard, Review or Manage. The app uses that period's question answers when calculating scores.</p>
+<ul><li><b>Weekly:</b> one week at a time.</li><li><b>Monthly:</b> one calendar month.</li><li><b>Quarterly:</b> Q1, Q2, Q3 or Q4.</li><li><b>Half-yearly:</b> January–June or July–December.</li><li><b>Yearly:</b> one calendar year.</li></ul>
+</div>
+<div class="card docs-card" style="margin-top:18px">
+<h2>🔐 Your data</h2>
+<p>This version stores its data in the browser's <b>localStorage</b>. Use <b>Export JSON</b> regularly to keep a backup. <b>Import JSON</b> can restore previously exported data. <b>Reset all</b> permanently clears the data stored in this browser.</p>
+</div>
 </section>
 
 <footer>Business Score · data stored locally in your browser (localStorage)</footer>
@@ -384,7 +440,7 @@ document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active',p.id==
 renderActive();window.scrollTo(0,0);
 }
 function renderActive(){
-if(ui.tab==='dash')renderDash();else if(ui.tab==='review')renderReview();else renderManage();
+if(ui.tab==='dash')renderDash();else if(ui.tab==='review')renderReview();else if(ui.tab==='manage')renderManage();
 }
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 document.querySelectorAll('[data-goto-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.gotoTab));
