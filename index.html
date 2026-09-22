@@ -118,7 +118,7 @@ select:focus,input[type=date]:focus,input[type=search]:focus{border-color:var(--
 <div class="field"><label>Period date</label><input type="date" id="dashDate"></div>
 <div class="field"><label>Department</label><select id="dashDeptFilter"></select></div>
 <div class="field"><label>Search employee</label><input type="search" id="dashEmpSearch" placeholder="Name contains…"></div>
-<div class="field"><label>Performance</label><select id="dashScoreFilter"><option value="all">All scores</option><option value="excellent">Excellent (8.5–10)</option><option value="good">Good (7–8.49)</option><option value="average">Average (5–6.99)</option><option value="needs">Needs improvement (0–4.99)</option><option value="pending">Not reviewed</option></select></div>
+<div class="field"><label>Performance</label><select id="dashScoreFilter"><option value="all">All scores</option><option value="excellent">Excellent (85–100%)</option><option value="good">Good (70–84.9%)</option><option value="average">Average (50–69.9%)</option><option value="needs">Needs improvement (0–49.9%)</option><option value="pending">Not reviewed</option></select></div>
 <div class="field"><label>Review status</label><select id="dashReviewFilter"><option value="all">All status</option><option value="complete">Fully reviewed</option><option value="progress">In progress</option><option value="notstarted">Not started</option></select></div>
 </div>
 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px"><span class="period-badge" id="dashPeriodLabel">Current period</span><span class="search-result-count" id="dashFilterCount"></span><button class="btn-ghost sm" id="btnClearDashFilters">Clear filters</button></div>
@@ -126,7 +126,7 @@ select:focus,input[type=date]:focus,input[type=search]:focus{border-color:var(--
 <div class="note" id="dashNote" style="display:none">No reviews yet. Open the <b>Review</b> tab, pick a department and answer the questions for each employee.</div>
 <div class="grid top">
 <div class="card score-card"><h2 style="margin-bottom:6px">Overall Business Score</h2>
-<div class="gauge"><canvas id="gaugeChart"></canvas><div class="val"><b id="overallVal">–</b><span>out of 10</span></div></div>
+<div class="gauge"><canvas id="gaugeChart"></canvas><div class="val"><b id="overallVal">–</b><span>out of 100%</span></div></div>
 <span class="badge" id="overallBadge">No data</span></div>
 <div class="card"><h2>Summary</h2><div class="stats">
 <div class="stat"><small>Departments</small><b id="stDepts">0</b></div>
@@ -157,7 +157,7 @@ select:focus,input[type=date]:focus,input[type=search]:focus{border-color:var(--
 <div class="field"><label>Review cycle</label><select id="reviewPeriod"></select></div>
 <div class="field"><label>Period date</label><input type="date" id="reviewDate"></div>
 <div class="field"><label>Search employee</label><input type="search" id="reviewEmpSearch" placeholder="Name contains…"></div>
-<div class="field"><label>Performance</label><select id="reviewScoreFilter"><option value="all">All scores</option><option value="excellent">Excellent (8.5–10)</option><option value="good">Good (7–8.49)</option><option value="average">Average (5–6.99)</option><option value="needs">Needs improvement (0–4.99)</option><option value="pending">Not reviewed</option></select></div>
+<div class="field"><label>Performance</label><select id="reviewScoreFilter"><option value="all">All scores</option><option value="excellent">Excellent (85–100%)</option><option value="good">Good (70–84.9%)</option><option value="average">Average (50–69.9%)</option><option value="needs">Needs improvement (0–49.9%)</option><option value="pending">Not reviewed</option></select></div>
 <div class="field"><label>Review status</label><select id="reviewStatusFilter"><option value="all">All status</option><option value="complete">Fully reviewed</option><option value="progress">In progress</option><option value="notstarted">Not started</option></select></div>
 </div>
 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px"><span class="period-badge" id="reviewPeriodLabel">Current period</span><span class="search-result-count" id="reviewFilterCount"></span></div>
@@ -209,7 +209,7 @@ function dateInputValue(d=new Date()){return new Date(d).toISOString().slice(0,1
 function periodQuestions(d,period){return d.questionSets&&Array.isArray(d.questionSets[period])?d.questionSets[period]:d.questions||[];}
 function ensureReview(e,key){if(!e.reviews||typeof e.reviews!=='object')e.reviews={};if(!e.reviews[key]||typeof e.reviews[key]!=='object')e.reviews[key]={answers:{},updatedAt:null};if(!e.reviews[key].answers||typeof e.reviews[key].answers!=='object')e.reviews[key].answers={};return e.reviews[key];}
 function currentAnswers(e,key){return ensureReview(e,key).answers;}
-function scoreMatches(score,filter){if(filter==='all')return true;if(filter==='pending')return score===null;if(score===null)return false;if(filter==='excellent')return score>=8.5;if(filter==='good')return score>=7&&score<8.5;if(filter==='average')return score>=5&&score<7;if(filter==='needs')return score<5;return true;}
+function scoreMatches(score,filter){if(filter==='all')return true;if(filter==='pending')return score===null;if(score===null)return false;if(filter==='excellent')return score>=85;if(filter==='good')return score>=70&&score<85;if(filter==='average')return score>=50&&score<70;if(filter==='needs')return score<50;return true;}
 function statusMatches(stat,filter){if(filter==='all')return true;if(filter==='complete')return stat.total>0&&stat.answered===stat.total;if(filter==='progress')return stat.answered>0&&stat.answered<stat.total;return filter==='notstarted'?stat.answered===0:false;}
 
 const TEMPLATES={
@@ -350,7 +350,7 @@ const findD=id=>state.departments.find(d=>d.id===id);
 function empStats(d,e,period=ui.period){
 const info=periodInfo(period,ui.anchorDate);const qs=periodQuestions(d,period),answers=currentAnswers(e,info.key);let yes=0,partial=0,no=0;
 qs.forEach(q=>{const a=answers[q.id];if(a==='yes')yes++;else if(a==='partial')partial++;else if(a==='no')no++;});
-const answered=yes+partial+no,total=qs.length;return{yes,partial,no,answered,total,score:answered?((yes+partial*.5)/answered)*10:null,periodKey:info.key};
+const answered=yes+partial+no,total=qs.length;return{yes,partial,no,answered,total,score:answered?((yes+partial*.5)/answered)*100:null,periodKey:info.key};
 }
 function deptStats(d,period=ui.period,employeePredicate=()=>true){
 const es=d.employees.filter(employeePredicate).map(e=>empStats(d,e,period)),sc=es.filter(x=>x.score!==null).map(x=>x.score);
@@ -361,9 +361,9 @@ function matchesFilters(d,e,period,filters){const s=empStats(d,e,period);const n
 
 function grade(v){
 if(v===null)return{t:'No data',c:'#9ca3af'};
-if(v>=8.5)return{t:'Excellent',c:'#10b981'};
-if(v>=7)return{t:'Good',c:'#22c55e'};
-if(v>=5)return{t:'Average',c:'#f59e0b'};
+if(v>=85)return{t:'Excellent',c:'#10b981'};
+if(v>=70)return{t:'Good',c:'#22c55e'};
+if(v>=50)return{t:'Average',c:'#f59e0b'};
 return{t:'Needs improvement',c:'#ef4444'};
 }
 
@@ -423,7 +423,7 @@ $('rankList').innerHTML=ranked.length?ranked.map((r,k)=>`
 <div class="rank-row" data-goto="${r.d.id}" title="Open in Review">
 <span class="pos" style="background:${color(r.i)}">${k+1}</span>
 <span class="nm" title="${esc(r.d.name)}">${esc(r.d.name)}</span>
-<div class="bar"><i style="width:${r.s.avg*10}%;background:${color(r.i)}"></i></div>
+<div class="bar"><i style="width:${r.s.avg}%;background:${color(r.i)}"></i></div>
 <span class="sc">${r.s.avg.toFixed(1)}</span>
 </div>`).join(''):'<div class="empty sm">No reviews yet.</div>';
 
@@ -434,13 +434,13 @@ const base={responsive:true,maintainAspectRatio:false};
 const scored=ranked.slice().sort((a,b)=>a.i-b.i);
 const labels=scored.map(x=>x.d.name),vals=scored.map(x=>+x.s.avg.toFixed(2)),cols=scored.map(x=>color(x.i));
 
-upsert('gaugeChart',{type:'doughnut',data:{datasets:[{data:[ov||0,10-(ov||0)],backgroundColor:[g.c,grid],borderWidth:0}]},options:{...base,cutout:'78%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
-upsert('barChart',{type:'bar',data:{labels,datasets:[{label:'Score',data:vals,backgroundColor:cols,borderRadius:8}]},options:{...base,plugins:{legend:{display:false}},scales:{y:{min:0,max:10,grid:{color:grid}},x:{grid:{display:false}}}}});
+upsert('gaugeChart',{type:'doughnut',data:{datasets:[{data:[ov||0,100-(ov||0)],backgroundColor:[g.c,grid],borderWidth:0}]},options:{...base,cutout:'78%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+upsert('barChart',{type:'bar',data:{labels,datasets:[{label:'Score',data:vals,backgroundColor:cols,borderRadius:8}]},options:{...base,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:grid}},x:{grid:{display:false}}}}});
 
 const tot={yes:0,partial:0,no:0};st.forEach(x=>{tot.yes+=x.s.yes;tot.partial+=x.s.partial;tot.no+=x.s.no});
 upsert('pieChart',{type:'pie',data:{labels:['Yes','Partially','No'],datasets:[{data:[tot.yes,tot.partial,tot.no],backgroundColor:[ANS.yes.c,ANS.partial.c,ANS.no.c],borderWidth:2,borderColor:'transparent'}]},options:{...base,plugins:{legend:{position:'bottom'}}}});
 
-upsert('radarChart',{type:'radar',data:{labels,datasets:[{label:'Score',data:vals,backgroundColor:'rgba(79,70,229,.2)',borderColor:'#4f46e5',pointBackgroundColor:cols,pointRadius:5}]},options:{...base,plugins:{legend:{display:false}},scales:{r:{min:0,max:10,ticks:{backdropColor:'transparent'},grid:{color:grid},angleLines:{color:grid}}}}});
+upsert('radarChart',{type:'radar',data:{labels,datasets:[{label:'Score',data:vals,backgroundColor:'rgba(79,70,229,.2)',borderColor:'#4f46e5',pointBackgroundColor:cols,pointRadius:5}]},options:{...base,plugins:{legend:{display:false}},scales:{r:{min:0,max:100,ticks:{backdropColor:'transparent'},grid:{color:grid},angleLines:{color:grid}}}}});
 
 const withAns=st.filter(x=>x.s.yes+x.s.partial+x.s.no>0);
 const pct=(x,k)=>{const t=x.s.yes+x.s.partial+x.s.no;return t?+(x.s[k]/t*100).toFixed(1):0};
@@ -454,7 +454,7 @@ scales:{x:{stacked:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:grid}},y:{
 const emps=[];
 st.forEach(x=>x.d.employees.forEach((e,k)=>{const s=x.s.es[k];if(s.score!==null)emps.push({n:`${e.name} · ${x.d.name}`,s:s.score,c:color(x.i)})}));
 emps.sort((a,b)=>b.s-a.s);const top=emps.slice(0,10);
-upsert('topChart',{type:'bar',data:{labels:top.map(x=>x.n),datasets:[{label:'Score',data:top.map(x=>+x.s.toFixed(2)),backgroundColor:top.map(x=>x.c),borderRadius:6}]},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:10,grid:{color:grid}},y:{grid:{display:false}}}}});
+upsert('topChart',{type:'bar',data:{labels:top.map(x=>x.n),datasets:[{label:'Score',data:top.map(x=>+x.s.toFixed(2)),backgroundColor:top.map(x=>x.c),borderRadius:6}]},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:100,grid:{color:grid}},y:{grid:{display:false}}}}});
 
 const done=st.reduce((a,x)=>a+x.s.complete,0),started=st.reduce((a,x)=>a+x.s.started,0);
 upsert('progChart',{type:'doughnut',data:{labels:['Fully reviewed','In progress','Not started'],datasets:[{data:[done,started-done,Math.max(0,empTotal-started)],backgroundColor:['#10b981','#f59e0b','#9ca3af'],borderWidth:2,borderColor:'transparent'}]},options:{...base,cutout:'55%',plugins:{legend:{position:'bottom'}}}});
@@ -479,12 +479,12 @@ const d=findD(ui.reviewDept),s=deptStats(d,ui.period,e=>matchesFilters(d,e,ui.pe
 const pills=state.departments.map((x,i)=>{const sx=deptStats(x,ui.period,e=>matchesFilters(x,e,ui.period,ui.review));return `<button class="pill ${x.id===d.id?'sel':''}" style="--c:${color(i)}" data-dept="${x.id}"><span class="dot"></span>${esc(x.name)}<b>${fmt(sx.avg)}</b></button>`}).join('');
 const prog=s.count?Math.round(s.complete/s.count*100):0;
 $('revHead').innerHTML=`<div class="pills">${pills}</div>
-<div class="card revsum" style="margin-bottom:16px"><div><small style="color:var(--muted)">${PERIOD_LABELS[ui.period]} department score</small><div class="big" style="color:${g.c}">${fmt(s.avg)} <span style="font-size:14px;font-weight:600;color:var(--muted)">/ 10 · ${g.t}</span></div></div><div><small style="color:var(--muted)">Fully reviewed: ${s.complete} of ${s.count} employees</small><div class="bar" style="margin-top:6px"><i style="width:${prog}%;background:${g.c==='#9ca3af'?'#4f46e5':g.c}"></i></div></div><div class="legend"><span style="--c:${ANS.yes.c}">Yes = 1</span><span style="--c:${ANS.partial.c}">Partially = 0.5</span><span style="--c:${ANS.no.c}">No = 0</span></div></div>`;
+<div class="card revsum" style="margin-bottom:16px"><div><small style="color:var(--muted)">${PERIOD_LABELS[ui.period]} department score</small><div class="big" style="color:${g.c}">${fmt(s.avg)}% <span style="font-size:14px;font-weight:600;color:var(--muted)">· ${g.t}</span></div></div><div><small style="color:var(--muted)">Fully reviewed: ${s.complete} of ${s.count} employees</small><div class="bar" style="margin-top:6px"><i style="width:${prog}%;background:${g.c==='#9ca3af'?'#4f46e5':g.c}"></i></div></div><div class="legend"><span style="--c:${ANS.yes.c}">Yes = 1</span><span style="--c:${ANS.partial.c}">Partially = 0.5</span><span style="--c:${ANS.no.c}">No = 0</span></div></div>`;
 }
 function empCard(d,e){
 const s=empStats(d,e,ui.period),g=grade(s.score),open=ui.openEmp.has(e.id),qs=periodQuestions(d,ui.period),answers=currentAnswers(e,s.periodKey);
 const rows=qs.map((q,i)=>{const a=answers[q.id]||'';return `<div class="q"><div class="qn">${i+1}</div><div class="qt">${esc(q.text)}</div><div class="seg">${Object.entries(ANS).map(([k,v])=>`<button class="${a===k?'on':''}" style="--c:${v.c}" data-ans="${k}" data-d="${d.id}" data-e="${e.id}" data-q="${q.id}">${v.label}</button>`).join('')}</div></div>`}).join('');
-return `<details class="emp" data-empcard="${e.id}" ${open?'open':''}><summary><span class="chev">▶</span><span class="ename">${esc(e.name)}</span><span class="chip">${s.answered}/${s.total} answered</span><span class="scorechip" style="background:${g.c}">${s.score===null?'Pending':s.score.toFixed(1)+' / 10'}</span></summary><div class="ebody"><div class="qtools"><button class="btn-ghost sm" data-bulk="yes" data-d="${d.id}" data-e="${e.id}">Mark all Yes</button><button class="btn-ghost sm" data-bulk="clear" data-d="${d.id}" data-e="${e.id}">Clear answers</button></div>${rows||'<div class="empty sm">This review cycle has no questions. Add some in Manage.</div>'}</div></details>`;
+return `<details class="emp" data-empcard="${e.id}" ${open?'open':''}><summary><span class="chev">▶</span><span class="ename">${esc(e.name)}</span><span class="chip">${s.answered}/${s.total} answered</span><span class="scorechip" style="background:${g.c}">${s.score===null?'Pending':s.score.toFixed(1)+'%'}</span></summary><div class="ebody"><div class="qtools"><button class="btn-ghost sm" data-bulk="yes" data-d="${d.id}" data-e="${e.id}">Mark all Yes</button><button class="btn-ghost sm" data-bulk="clear" data-d="${d.id}" data-e="${e.id}">Clear answers</button></div>${rows||'<div class="empty sm">This review cycle has no questions. Add some in Manage.</div>'}</div></details>`;
 }
 function refreshEmp(d,e){const el=document.querySelector(`[data-empcard="${e.id}"]`);if(!el)return;const t=document.createElement('template');t.innerHTML=empCard(d,e).trim();el.replaceWith(t.content.firstChild);renderRevHead();}
 $('revHead').addEventListener('click',e=>{const p=e.target.closest('[data-dept]');if(!p)return;ui.reviewDept=p.dataset.dept;renderReview()});
